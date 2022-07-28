@@ -6,7 +6,7 @@ Created on Sat Jul 23 02:08:56 2022
 """
 import time
 import timeit
-import pandas
+import pandas as pd
 from web3 import Web3
 web3 = Web3(Web3.HTTPProvider(
     'https://mainnet.infura.io/v3/f372373ccf164636a2fc76516f4931cb'))
@@ -32,19 +32,19 @@ def read_latest__few_blocks():
 
 def parse_transaction(transaction):
     data = web3.eth.get_transaction(transaction)
-    return {'tx': data['from'], 'rx': data['to'], 'value': data['value']}
+    return {'Transmitter': data['from'], 'Reciever': data['to'], 'Value': [data['value']]}
 
 
 if __name__ == '__main__':
-    columns = ['Transmitter', 'Reciever', 'Value']
-    df = pandas.DataFrame(columns=columns)
     block = read_single_block()
+    columns = ['Transmitter', 'Reciever', 'Value']
+    df = pd.DataFrame(columns=columns)
     print(df)
     while(1):
         try:
             # check to see if the block has changed
             if block['number'] == read_single_block()['number']:
-                print('Sleeping')
+                print('Waiting for next block')
                 time.sleep(5)
                 continue
             else:
@@ -54,10 +54,9 @@ if __name__ == '__main__':
 
                 for transaction in transactions:
                     try:
-                        data = parse_transaction(transaction)
-                        df = df.append({'Transmitter': data['tx'],
-                                        'Reciever': data['rx'],
-                                        'Value': data['value']}, ignore_index=True)
+                        tx_data = parse_transaction(transaction)
+                        data = pd.DataFrame(tx_data, columns=columns)
+                        df = pd.concat([df, data], axis=0)
                     except KeyboardInterrupt:
                         print('interrupted')
                         print(df)
