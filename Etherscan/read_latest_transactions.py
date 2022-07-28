@@ -12,6 +12,8 @@ web3 = Web3(Web3.HTTPProvider(
     'https://mainnet.infura.io/v3/f372373ccf164636a2fc76516f4931cb'))
 
 # reads in the data for the most rcent block
+
+
 def read_single_block():
     block_number = web3.eth.blockNumber
     block = web3.eth.get_block(block_number - 1)
@@ -42,6 +44,8 @@ if __name__ == '__main__':
         try:
             # check to see if the block has changed
             if block['number'] == read_single_block()['number']:
+                print('Sleeping')
+                time.sleep(5)
                 continue
             else:
                 start = timeit.default_timer()
@@ -61,7 +65,6 @@ if __name__ == '__main__':
                     except:
                         continue
                 stop = timeit.default_timer()
-
                 print('Block ', block['number'], ' parse time: ', stop - start)
         except KeyboardInterrupt:
             print('interrupted')
